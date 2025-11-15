@@ -24,7 +24,7 @@ def parse_args():
     parser.add_argument("-t", "--tile-size", type = int, required = True, help = s)
 
     s = "Directory to write the tiles into."
-    parser.add_argument("-o", "--output-dir", type = Path, required = True, help = s)
+    parser.add_argument("-o", "--output-dir", type = Path, default = "tiles", help = s)
 
     s = "Downsampling filter used when generating lower LODs (default: box)."
     parser.add_argument("--filter", choices = FILTERS.keys(), default = "box", help = s)
@@ -48,7 +48,7 @@ def validate_image_and_tile_size(image: Image.Image, tile_size: int):
             f"Image size {width} is not divisible by tile size {tile_size}."
         )
 
-    # require ratio to be a power of two so that halving reaches a 1x1 tile.
+    # require ratio to be a power of two so that halving reaches a 1x1 tile
     ratio = width // tile_size
     if ratio & (ratio - 1) != 0:
         raise ValueError(
@@ -57,7 +57,7 @@ def validate_image_and_tile_size(image: Image.Image, tile_size: int):
 
     return width
 
-def build_mip_pyramid(
+def generate_tiles_for_level(
     image: Image.Image,
     lod: int,
     tile_size: int,
@@ -65,8 +65,64 @@ def build_mip_pyramid(
     prefix: str,
     ext: str,
 ):
-    # Implement.
-    return 0
+    width, height = image.size
+    tiles_x = width // tile_size
+    tiles_y = height // tile_size
+
+    for y in range(tiles_y):
+        for x in range(tiles_x):
+            left = x * tile_size
+            top = y * tile_size
+            right = left + tile_size
+            bottom = top + tile_size
+            tile = image.crop((left, top, right, bottom))
+            filename = f"{prefix}{lod}_{x}_{y}{ext}"
+            output_path = output_dir / filename
+            tile.save(output_path)
+
+def build_mip_pyramid(
+    base_image: Image.Image,
+    base_size: int,
+    tile_size: int,
+    output_dir: Path,
+    prefix: str,
+    ext: str,
+    filter_name: str,
+):
+    resample = FILTERS[filter_name]
+    current_image = base_image.copy()
+    current_size = base_size
+    lod = 0
+
+    while True:
+        print(f"Generating tiles for LOD {lod} ({current_size}x{current_size})")
+
+        generate_tiles_for_level(
+            image = current_image,
+            lod = lod,
+            tile_size = tile_size,
+            output_dir = output_dir,
+            prefix = prefix,
+            ext = ext,
+        )
+
+        # reached the level where there is exactly 1x1 tile of tile_size
+        if current_size == tile_size: break
+
+        next_size = current_size // 2
+        if next_size < tile_size:
+            raise RuntimeError(
+                f"Next mip size {next_size} is smaller than tile size {tile_size}. "
+                f"This should not happen if validation passed."
+            )
+
+        current_image = current_image.resize(
+            (next_size, next_size),
+            resample = resample,
+        )
+
+        current_size = next_size
+        lod += 1
 
 def main():
     args = parse_args()
