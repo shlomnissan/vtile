@@ -2,7 +2,7 @@
 
 A tiny command-line tool that takes a large image and breaks it into uniformly sized tiles. I built it while experimenting with virtual textures and needed a quick way to generate tile sets from 8K and 16K assets.
 
-vtile doesn’t try to do anything clever. It just loads an image, checks that it divides cleanly into the tile size you asked for, and writes out the tiles with a simple naming scheme. That’s it.
+`vtile` doesn’t try to do anything clever. It just loads an image, checks that it divides cleanly into the tile size you asked for, and writes out the tiles with a simple naming scheme. That’s it.
 
 ### Features
 - Split any image into fixed-size tiles
@@ -36,16 +36,7 @@ Virtual textures and tile streaming rely on breaking images into pages. I needed
 
 ## License
 
-```                                                                                          
- ___      ___ ________  ___          ___    ___ 
-|\  \    /  /|\   ____\|\  \        |\  \  /  /|
-\ \  \  /  / | \  \___|\ \  \       \ \  \/  / /
- \ \  \/  / / \ \  \  __\ \  \       \ \    / / 
-  \ \    / /   \ \  \|\  \ \  \____   /     \/  
-   \ \__/ /     \ \_______\ \_______\/  /\   \  
-    \|__|/       \|_______|\|_______/__/ /\ __\ 
-                                    |__|/ \|__| 
-                                                  
+```                                                                                                                              
 Copyright (c) 2025-present Shlomi Nissan
 https://shlom.dev
 
