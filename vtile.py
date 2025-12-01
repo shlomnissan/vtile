@@ -14,14 +14,17 @@ FILTERS: Dict[str, int] = {
 }
 
 def parse_args():
-    s = "Generate tiled mip levels for a square image."
+    s = "Generate tiled mip levels for images."
     parser = argparse.ArgumentParser(description = s)
 
     s = "Path to the input image."
     parser.add_argument("-i", "--input", type = Path, required = True, help = s)
 
-    s = "Tile size in pixels (square tiles)."
-    parser.add_argument("-t", "--tile-size", type = int, required = True, help = s)
+    s = "Tile width in pixels."
+    parser.add_argument("--tile-w", type = int, required = True, help = s)
+
+    s = "Tile height in pixels."
+    parser.add_argument("--tile-h", type = int, required = True, help = s)
 
     s = "Directory to write the tiles into."
     parser.add_argument("-o", "--output-dir", type = Path, default = "tiles", help = s)
@@ -34,101 +37,96 @@ def parse_args():
 
     return parser.parse_args()
 
-def validate_image_and_tile_size(image: Image.Image, tile_size: int):
+def validate_image_and_tile_size(image: Image.Image, tile_w: int, tile_h):
     width, height = image.size
 
-    if width != height:
-        raise ValueError("Image must be square")
+    if tile_w <= 0:
+        raise ValueError("Tile width must be a positive integer")
 
-    if tile_size <= 0:
-        raise ValueError("Tile size must be a positive integer")
+    if width % tile_w != 0:
+        raise ValueError("Input width must be divisible by tile width")
 
-    if width % tile_size != 0:
-        raise ValueError(
-            f"Image size {width} is not divisible by tile size {tile_size}."
-        )
+    if tile_h <= 0:
+        raise ValueError("Tile height must be a positive integer")
 
-    # require ratio to be a power of two so that halving reaches a 1x1 tile
-    ratio = width // tile_size
-    if ratio & (ratio - 1) != 0:
-        raise ValueError(
-            f"(image_size / tile_size) = {ratio}, which is not a power of two."
-        )
-
-    return width
+    if height % tile_h != 0:
+        raise ValueError("Input height must be divisible by tile height")
 
 def generate_tiles_for_level(
     image: Image.Image,
     lod: int,
-    tile_size: int,
+    tile_w: int,
+    tile_h: int,
     output_dir: Path,
     prefix: str,
     ext: str,
 ):
     width, height = image.size
-    tiles_x = width // tile_size
-    tiles_y = height // tile_size
+    tiles_x = width // tile_w
+    tiles_y = height // tile_h
 
     for y in range(tiles_y):
         for x in range(tiles_x):
-            left = x * tile_size
-            top = y * tile_size
-            right = left + tile_size
-            bottom = top + tile_size
+            left = x * tile_w
+            top = y * tile_h
+            right = left + tile_w
+            bottom = top + tile_h
             tile = image.crop((left, top, right, bottom))
             filename = f"{prefix}{lod}_{x}_{y}{ext}"
             output_path = output_dir / filename
             tile.save(output_path)
 
 def build_mip_pyramid(
-    base_image: Image.Image,
-    base_size: int,
-    tile_size: int,
+    image: Image.Image,
+    tile_w: int,
+    tile_h: int,
     output_dir: Path,
     prefix: str,
     ext: str,
     filter_name: str,
 ):
     resample = FILTERS[filter_name]
-    current_image = base_image.copy()
-    current_size = base_size
+    current_image = image.copy()
+    current_width, current_height = current_image.size
     lod = 0
 
     while True:
-        print(f"Generating tiles for LOD {lod} ({current_size}x{current_size})")
+        print(f"Generating tiles for LOD {lod} ({current_width}x{current_height})")
 
         generate_tiles_for_level(
             image = current_image,
             lod = lod,
-            tile_size = tile_size,
+            tile_w = tile_w,
+            tile_h = tile_h,
             output_dir = output_dir,
             prefix = prefix,
             ext = ext,
         )
 
-        # reached the level where there is exactly 1x1 tile of tile_size
-        if current_size == tile_size: break
+        # reached the level where one axis equals tile size
+        if current_width == tile_w or current_height == tile_h: break
 
-        next_size = current_size // 2
-        if next_size < tile_size:
-            raise RuntimeError(
-                f"Next mip size {next_size} is smaller than tile size {tile_size}. "
-                f"This should not happen if validation passed."
-            )
+        next_width = current_width // 2
+        next_height = current_height // 2
+
+        if next_width < tile_w or next_height < tile_h:
+            break
 
         current_image = current_image.resize(
-            (next_size, next_size),
+            (next_width, next_height),
             resample = resample,
         )
 
-        current_size = next_size
+        current_width = next_width
+        current_height = next_height
         lod += 1
 
 def main():
     args = parse_args()
 
     input_path = args.input
-    tile_size = args.tile_size
+    tile_w = args.tile_w
+    tile_h = args.tile_h
     output_dir = args.output_dir
     filter_name  = args.filter
     prefix = args.prefix
@@ -140,29 +138,30 @@ def main():
     if not ext:
         raise ValueError("Input file must have an extension")
 
-    output_dir.mkdir(parents = True, exist_ok = True)
     image = Image.open(input_path)
-    base_size = validate_image_and_tile_size(image, tile_size)
+    validate_image_and_tile_size(image, tile_w, tile_h)
 
+    output_dir.mkdir(parents = True, exist_ok = True)
+
+    width, height = image.size
     print(
-        f"Input: {input_path} ({base_size}x{base_size}), "
-        f"tile size: {tile_size}, "
-        f"filter: {filter_name}"
+        f"Input: {input_path} {width}x{height}\n"
+        f"Tile size: {tile_w}x{tile_h}\n"
+        f"Filter: {filter_name}\n"
+        f"Output directory: {output_dir.resolve()}\n"
     )
 
-    print(f"Writing tiles to: {output_dir.resolve()}")
-
     build_mip_pyramid(
-        base_image = image,
-        base_size = base_size,
-        tile_size = tile_size,
+        image = image,
+        tile_w = tile_w,
+        tile_h = tile_h,
         output_dir = output_dir,
         prefix = prefix,
         ext = ext,
         filter_name = filter_name,
     )
 
-    print("Done.")
+    print("\nDone.")
 
 if __name__ == "__main__":
     main()
