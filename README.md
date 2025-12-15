@@ -61,23 +61,9 @@ Virtual textures and tile streaming start by breaking large images into pages. `
 
 ### License
 
-```                                                                                                                                                                                                                
-             ,---,      ,--,                      ____   
-           ,--.' |    ,--.'|                    ,'  , `. 
-           |  |  :    |  | :     ,---.       ,-+-,.' _ | 
-  .--.--.  :  :  :    :  : '    '   ,'\   ,-+-. ;   , || 
- /  /    ' :  |  |,--.|  ' |   /   /   | ,--.'|'   |  || 
-|  :  /`./ |  :  '   |'  | |  .   ; ,. :|   |  ,', |  |, 
-|  :  ;_   |  |   /' :|  | :  '   | |: :|   | /  | |--'  
- \  \    `.'  :  | | |'  : |__'   | .; :|   : |  | ,     
-  `----.   \  |  ' | :|  | '.'|   :    ||   : |  |/      
- /  /`--'  /  :  :_:,';  :    ;\   \  / |   | |`-'       
-'--'.     /|  | ,'    |  ,   /  `----'  |   ;/           
-  `--'---' `--''       ---`-'           '---'            
-                                                         
-                                                                                                          
+```                                                               
 Copyright (c) 2025-present Shlomi Nissan
-https://shlom.dev
+https://shlom.dev | https://vglx.org
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
