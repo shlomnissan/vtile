@@ -1,6 +1,6 @@
 # vtile
 
-A tiny command-line tool that takes a large image and breaks it into tiles. I built it while experimenting with virtual textures and needed a quick way to generate tile sets from 8K and 16K assets.
+A tiny command-line tool that takes a large image and breaks it into tiles. I built it while experimenting with [virtual textures](https://github.com/shlomnissan/virtual-textures) and needed a quick way to generate tile sets from 8K and 16K assets.
 
 `vtile` doesn’t try to do anything clever. It just loads an image, checks that it divides cleanly into the tile size you asked for, and writes out the tiles with a simple naming scheme. That’s it.
 
@@ -9,27 +9,19 @@ A tiny command-line tool that takes a large image and breaks it into tiles. I bu
 - Ensures the dimensions are divisible by the tile size
 - Preserves the input format
 - Optional prefix for tile naming
-- Optional post-processing filter
-
-### Usage
-
-```bash
-vtile \
-  --input example.png \
-  --tile-w 256 \
-  --tile-h 256 \
-  --output tiles
-```
-
-This will produce tiles named like `1_0_0.png`. LOD and coordinates are encoded as `lod_x_y` to keep filenames short and easy to scan.
 
 ### Example
 
 The repository includes a sample 8192×8192 image (example.png) you can test with. It was created by Maurus Löffel. Higher resolutions and source files are [available here](https://drive.google.com/drive/folders/1K_G_hbFyohR8-xCCAlYx8xhsd_a7Ir7G).
 
-Try: `python3 vtile.py -i example.png --tile-w 1024 --tile-h 1024`
+#### Usage
+```bash
+python3 vtile.py -i example.png --tile-w 1024 --tile-h 1024
+```
 
 You should see a `tiles` directory that includes 4 LODs and 85 tiles all of which are 1024x1024.
+
+LOD and coordinates are encoded as `lod_x_y` to keep filenames short and easy to scan.
 
 ### Why this exists
 
