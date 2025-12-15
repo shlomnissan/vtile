@@ -32,6 +32,9 @@ def parse_args():
     s = "Downsampling filter used when generating lower LODs (default: box)."
     parser.add_argument("--filter", choices = FILTERS.keys(), default = "box", help = s)
 
+    s = "Optional tile padding."
+    parser.add_argument("-p", "--padding", type = int, default = 0, help = 0)
+
     s = "Optional filename prefix."
     parser.add_argument("--prefix", type = str, default = "", help = s)
 
@@ -58,6 +61,7 @@ def generate_tiles_for_level(
     tile_w: int,
     tile_h: int,
     output_dir: Path,
+    padding: int,
     prefix: str,
     ext: str,
 ):
@@ -65,22 +69,34 @@ def generate_tiles_for_level(
     tiles_x = width // tile_w
     tiles_y = height // tile_h
 
-    for y in range(tiles_y):
-        for x in range(tiles_x):
-            left = x * tile_w
-            top = y * tile_h
-            right = left + tile_w
-            bottom = top + tile_h
-            tile = image.crop((left, top, right, bottom))
-            filename = f"{prefix}{lod}_{x}_{y}{ext}"
-            output_path = output_dir / filename
-            tile.save(output_path)
+    out_w = tile_w + 2 * padding
+    out_h = tile_h + 2 * padding
+
+    src = image.load()
+
+    for ty in range(tiles_y):
+        for tx in range(tiles_x):
+            base_x = tx * tile_w - padding
+            base_y = ty * tile_h - padding
+
+            tile = Image.new(image.mode, (out_w, out_h))
+            dst = tile.load()
+
+            for j in range (out_h):
+                sy = max(0, min(base_y + j, height - 1))
+                for i in range (out_w):
+                    sx = max(0, min(base_x + i, width - 1))
+                    dst[i, j] = src[sx, sy]
+
+            filename = f"{prefix}{lod}_{tx}_{ty}{ext}"
+            tile.save(output_dir / filename)
 
 def build_mip_pyramid(
     image: Image.Image,
     tile_w: int,
     tile_h: int,
     output_dir: Path,
+    padding: int,
     prefix: str,
     ext: str,
     filter_name: str,
@@ -99,6 +115,7 @@ def build_mip_pyramid(
             tile_w = tile_w,
             tile_h = tile_h,
             output_dir = output_dir,
+            padding = padding,
             prefix = prefix,
             ext = ext,
         )
@@ -129,6 +146,7 @@ def main():
     tile_h = args.tile_h
     output_dir = args.output_dir
     filter_name  = args.filter
+    padding = args.padding
     prefix = args.prefix
 
     if not input_path.is_file():
@@ -137,6 +155,9 @@ def main():
     ext = input_path.suffix
     if not ext:
         raise ValueError("Input file must have an extension")
+
+    if padding < 0:
+        raise ValueError("Padding must be non-negative")
 
     image = Image.open(input_path)
     validate_image_and_tile_size(image, tile_w, tile_h)
@@ -147,6 +168,7 @@ def main():
     print(
         f"Input: {input_path} {width}x{height}\n"
         f"Tile size: {tile_w}x{tile_h}\n"
+        f"Padding: {padding}px\n"
         f"Filter: {filter_name}\n"
         f"Output directory: {output_dir.resolve()}\n"
     )
@@ -156,6 +178,7 @@ def main():
         tile_w = tile_w,
         tile_h = tile_h,
         output_dir = output_dir,
+        padding = padding,
         prefix = prefix,
         ext = ext,
         filter_name = filter_name,
