@@ -12,6 +12,18 @@ A tiny command-line tool that takes a large image and breaks it into tiles. I bu
 - Optional per-tile padding for correct texture filtering
 - Optional prefix for tile naming
 
+### CLI options
+
+| Option | Description | Default |
+|------|-------------|---------|
+| `-i`, `--input` | Path to the input image | — |
+| `--tile-w` | Tile width in pixels | — |
+| `--tile-h` | Tile height in pixels | — |
+| `-o`, `--output-dir` | Directory to write tiles into | `tiles` |
+| `--filter` | Downsampling filter for lower LODs (`nearest`, `box`, `bilinear`) | `box` |
+| `-p`, `--padding` | Padding in pixels added on all sides of each tile | `0` |
+| `--prefix` | Optional filename prefix | `""` |
+
 ### Example
 
 The repository includes a sample 8192×8192 image (example.png) you can test with. It was created by Maurus Löffel. Higher resolutions and source files are [available here](https://drive.google.com/drive/folders/1K_G_hbFyohR8-xCCAlYx8xhsd_a7Ir7G).
