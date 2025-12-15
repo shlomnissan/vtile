@@ -59,7 +59,7 @@ When padding is enabled:
 
 Virtual textures and tile streaming start by breaking large images into pages. `vtile` handles this boring step. It lets you focus on page tables, residency, feedback passes, and everything else that actually matters.
 
-### License
+## License
 
 ```                                                               
 Copyright (c) 2025-present Shlomi Nissan
