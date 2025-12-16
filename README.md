@@ -13,6 +13,14 @@ Built while experimenting with [virtual textures](https://github.com/shlomnissan
 - Optional per tile padding for correct texture filtering
 - Optional filename prefix
 
+### Dependencies
+`vtile` is a single-file Python script. It depends on [Pillow](https://pillow.readthedocs.io/en/stable/) for image loading and saving.
+
+If Pillow is not installed, install it with:
+```bash
+pip install pillow
+```
+
 ### CLI options
 
 | Option | Description | Default |
@@ -31,7 +39,7 @@ The repository includes a sample 8192×8192 image (`example.png`) for testing cr
 
 #### Basic usage
 ```bash
-python3 vtile.py -i example.png --tile-w 1024 --tile-h 1024
+python vtile.py -i example.png --tile-w 1024 --tile-h 1024
 ```
 
 This generates a tiles directory containing multiple tiles per LODs. Tiles are named using the format `lod_x_y`. Short and easy to scan.
@@ -44,7 +52,7 @@ Linear and trilinear filtering are different. They sample across tile boundaries
 
 `vtile` supports per tile padding to fix this:
 ```bash
-python3 vtile.py -i example.png --tile-w 1024 --tile-h 1024 --padding 2
+python vtile.py -i example.png --tile-w 1024 --tile-h 1024 --padding 2
 ```
 
 When padding is enabled:
@@ -61,7 +69,7 @@ Virtual textures and tile streaming start by breaking large images into pages. `
 
 ## License
 
-```                                                               
+```
 Copyright (c) 2025-present Shlomi Nissan
 https://shlom.dev | https://vglx.org
 
