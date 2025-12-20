@@ -4,6 +4,10 @@ A tiny command line tool that splits large images into tiled mip pyramids.
 
 Built while experimenting with [virtual textures](https://github.com/shlomnissan/virtual-textures) and needing a fast, repeatable way to generate tiles from high-resolution images. `vtile` has a single job: take a large image and turn it into a predictable set of tiles across multiple LODs.
 
+### Why this exists
+
+Virtual textures and tile streaming start by breaking large images into pages. `vtile` handles this boring step. It lets you focus on page tables, residency, feedback passes, and everything else that actually matters.
+
 ### Features
 - Split any image into tiles
 - Validate image dimensions against tile size
@@ -12,14 +16,6 @@ Built while experimenting with [virtual textures](https://github.com/shlomnissan
 - Optional downsampling filter
 - Optional per tile padding for correct texture filtering
 - Optional filename prefix
-
-### Dependencies
-`vtile` is a single-file Python script. It depends on [Pillow](https://pillow.readthedocs.io/en/stable/) for image loading and saving.
-
-If Pillow is not installed, install it with:
-```bash
-pip install pillow
-```
 
 ### CLI options
 
@@ -33,7 +29,7 @@ pip install pillow
 | `-p`, `--padding` | Padding in pixels added on all sides of each tile | `0` |
 | `--prefix` | Optional filename prefix | `""` |
 
-### Example
+### Project overview
 
 The repository includes a sample 8192×8192 image (`example.png`) for testing created by Maurus Löffel. Higher resolutions and source files are [available here](https://drive.google.com/drive/folders/1K_G_hbFyohR8-xCCAlYx8xhsd_a7Ir7G).
 
@@ -44,7 +40,7 @@ python vtile.py -i example.png --tile-w 1024 --tile-h 1024
 
 This generates a tiles directory containing multiple tiles per LODs. Tiles are named using the format `lod_x_y`. Short and easy to scan.
 
-### Padding and filtering
+#### Padding and filtering
 
 By default tiles are generated without padding. This works for nearest neighbor sampling.
 
@@ -63,9 +59,13 @@ When padding is enabled:
 - The result is tiles that can be sampled safely with bilinear and trilinear filtering.
 - Padding is applied per LOD and does not affect tile layout or naming.
 
-### Why this exists
+### Dependencies
+`vtile` is a single-file Python script. It depends on [Pillow](https://pillow.readthedocs.io/en/stable/) for image loading and saving.
 
-Virtual textures and tile streaming start by breaking large images into pages. `vtile` handles this boring step. It lets you focus on page tables, residency, feedback passes, and everything else that actually matters.
+If Pillow is not installed, install it with:
+```bash
+pip install pillow
+```
 
 ## License
 
