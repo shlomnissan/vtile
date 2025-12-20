@@ -31,14 +31,14 @@ Virtual textures and tile streaming start by breaking large images into pages. `
 
 ### Project overview
 
-The repository includes a sample 8192×8192 image (`example.png`) for testing created by Maurus Löffel. Higher resolutions and source files are [available here](https://drive.google.com/drive/folders/1K_G_hbFyohR8-xCCAlYx8xhsd_a7Ir7G).
-
-#### Basic usage
+#### Example
 ```bash
 python vtile.py -i example.png --tile-w 1024 --tile-h 1024
 ```
 
 This generates a tiles directory containing multiple tiles per LODs. Tiles are named using the format `lod_x_y`. Short and easy to scan.
+
+The example UV grid image in this project is by Maurus Löffel. You can download the [source image here](https://drive.google.com/drive/folders/1K_G_hbFyohR8-xCCAlYx8xhsd_a7Ir7G).
 
 #### Padding and filtering
 
