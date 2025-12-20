@@ -2,7 +2,7 @@
 
 A tiny command line tool that splits large images into tiled mip pyramids.
 
-Built while experimenting with [virtual textures](https://github.com/shlomnissan/virtual-textures) and needing a fast, repeatable way to generate tiles from high-resolution images. `vtile` has a single job: take a large image and turn it into a predictable set of tiles across multiple LODs.
+Built while experimenting with [virtual textures](https://github.com/shlomnissan/virtual-textures) and needing an easy way to generate tiles from high-res images. `vtile` has a single job: take a large image and turn it into a predictable set of tiles across multiple LODs.
 
 ### Why this exists
 
